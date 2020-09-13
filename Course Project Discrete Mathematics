@@ -1,0 +1,198 @@
+//Faiza Khan
+//Project for Discrete Structures Level 2
+//Various functions demonstrating knowledge of discrete mathematics
+#include<iostream>
+#include<cmath>
+#include<stdio.h>
+#include<math.h>
+#include<stdlib.h>
+#include<assert.h>
+using namespace std;
+
+//prototype
+int EuclideanAlgorithmGCD(int a, int b);//finds GCD of 2 numbers
+int gcdExtended(int a, int b, int *x, int *y); //finds GCD and integer coefficients that express the GCD
+bool IsPrime(int n);
+int mod(int a, int n);
+int inverse(int a, int n);
+int RelativelyPrime(int n);
+int Exponent(int a, int g, int n);
+int Encode(int M, int f, int pq);
+int Decode(int C, int g, int pq);
+
+int main()
+{
+	int a, b, num1, num2, c, d, e,f, g, j, k, n, x, y;
+	int p = 11, q = 13, pq= p*q, r;
+	bool PrimeNum;
+	
+  // ************************* REGULAR Eucledean GCD *********************************
+	  cout << "1. Implement Euclidean Algorithm for calculating greatest common divisor " << endl << endl;
+    cout << "Eucledean algorithm for calculating common divisor" << endl << endl;
+	cout << "Enter 2 numbers to find the GCD : ";
+	cin >> a >> b;
+	c = EuclideanAlgorithmGCD(a,b);
+	cout << "Regular : GCD for " << a <<  " and " << b << " is " << c << " "<< endl;
+	
+  //************************* EXTENDED Eucledean GCD ********************************
+    cout << "Enter 2 numbers to find the Extended Eucledean GCD: ";
+    cin >> a >> b;
+    d = gcdExtended(a, b, &x, &y);
+    cout << "Entended: GCD for " << a << " and " << b << " is " << d << " " << endl;
+    cout << "Coefficient S: " << x << " Coefficient T: " << y << endl << endl;
+    
+    //************************* Modular arithmetic ********************************
+	cout << "Enter 2 numbers, a and b, to calculate a mod b : ";
+	cin >> num1 >> num2;
+	e = mod(num1, num2);
+	cout << num1 << " mod " << num2 << " is " << e << " " <<  endl;
+	cout << "Enter a number to test whether or not it is prime : ";
+	cin >> n;
+	PrimeNum = IsPrime(n);
+	if (IsPrime(n))
+		cout << "The number " << n << " is prime " << endl;
+  	else 
+		cout << "The number " << n << " is composite " << endl;
+	
+  //*************** Relatively Prime and Inverse Modulo ********************
+	r = (p-1) * (q-1);
+	f = RelativelyPrime(r);
+	g= inverse(f,r);
+	cout<< "Relatively prime number with (p-1)*(q-1) is " <<f <<endl;
+	cout<< "Inverse Modulo (p-1)*(q-1) with relatively prime number is " << g <<endl;
+	
+	//****************** Encode & Decode *************************************
+	int M, C, M1;
+	cout << "Enter an integer smaller than " << pq << " : ";
+	cin >> M;
+	C=Encode(M, f, pq);
+	M1 = Decode(C,g,pq);
+	cout << "C is " <<C << " & M1 is " << M1 << endl;
+	assert(M==M1);
+	return 0;
+}
+
+int EuclideanAlgorithmGCD(int a, int b)
+{
+	if (a==0)
+		return b;
+	return EuclideanAlgorithmGCD(b % a, a);//recursively call itself
+}
+
+int gcdExtended(int a, int b, int *x, int *y)
+{
+    if (a == 0)
+    {
+        *x = 0;
+        *y = 1;
+        return b;
+    }
+    
+    int x1, y1;
+    int gcd = gcdExtended(b%a, a, &x1, &y1);
+    
+    *x = y1 - (b/a) * x1;
+    *y = x1;
+    
+    return gcd;
+}
+
+int mod(int a, int n)
+{
+	int res, negRes, FinalRes;
+
+	res = a % n; //for positive numbers, just mod like this
+	if (res < 0)//if result is neg
+	{
+		negRes = res; //negative result set equal to current result
+		FinalRes = -1 * (negRes * n + (-res)); //final result calculated 
+	
+		return FinalRes;
+	}
+
+	return  res;
+}
+	
+bool IsPrime(int n)
+{
+	for (int i = 2; i<= sqrt(n); i++)//only need to check up to sqrt(n) to determine if a num is prime or not
+	{
+		if (n % i ==0)//if divisble by a number aka remainder is 0, it's composite. Return false
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+//return a number that is relatively prime with n and is greater than 1
+int RelativelyPrime(int n)
+{
+	for (int i =2;i<=n; i++)
+	{
+		if(EuclideanAlgorithmGCD(i, n) ==1)//if output of Euclid func (using i and n as parameters) is 1
+		{
+			return i;
+		}
+	}
+	return 0;
+}
+
+/* n>1, a is nonnegative */
+/* a<=n */
+/* a and n are relative prime to each other */
+/* return s such that a*s mod n is 1 */
+int inverse (int a, int n)
+{
+ 	int x, y;
+ 	int d = gcdExtended(n, a, &x, &y);
+ 	if (d==1)
+ 	{
+ 		return (mod (y, n)); // y might be negative, use mod() to reduce to
+ 					// an integer between 0 and n-1
+ 	}
+ 	else
+ 	{
+ 		cout <<"a and n are not relatively prime!\n";
+	}
+	return 0;
+}
+
+int Exponent(int a, int g, int n)
+{        
+          
+	int result, first, second;
+	//g is set equal to output of inverse function in the main function
+	if(g == 0)
+                  return 1; //if inverse is 0, return 1
+	else{ //otherwise, result is set to Exp function with paramters a from first # user enters, inverse/2, and n which is used when testing prime      
+		result = Exponent(a, g/2, n); //recusively call this function, g gets reduced each time
+                 
+                if(g % 2 == 0) //if the number from inverse, g, is even
+                {        
+               	        first = (result * result); 
+			return mod(first, n); //if inverse is even, return result^2 mod n
+                }
+                else
+                {       
+                        second = mod(result * result, n); 
+                        return mod(second*a, n);
+                }
+	   }
+}
+
+int Encode (int M, int f, int pq)// return M^f mod pq
+{
+	int z= Exponent(M,f,pq);
+        return z;
+}
+int Decode (int C, int g, int pq) //return C^g mod pq
+{
+	assert(g>=0);//inverse > 0
+        int result = 1; //different result variable here, initialized to 1
+        for(int i = 0; i < g; i++) //continue  modding in the loop
+        {
+	        result = mod(result*C, pq); //calls mod func
+        }
+        return result;
+}
